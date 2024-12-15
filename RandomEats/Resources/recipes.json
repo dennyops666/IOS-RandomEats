@@ -1,0 +1,40 @@
+{
+  "recipes": [
+    {
+      "name": "宫保鸡丁",
+      "category": "中餐",
+      "ingredients": [
+        {"name": "鸡胸肉", "amount": "300克"},
+        {"name": "花生", "amount": "50克"},
+        {"name": "青椒", "amount": "2个"},
+        {"name": "干辣椒", "amount": "8-10个"}
+      ],
+      "steps": [
+        "将鸡胸肉切成小块",
+        "热锅下油，爆香干辣椒",
+        "加入鸡肉翻炒至变色",
+        "加入花生和青椒翻炒",
+        "加入调味料炒至入味"
+      ],
+      "image": "kung_pao_chicken"
+    },
+    {
+      "name": "番茄炒蛋",
+      "category": "中餐",
+      "ingredients": [
+        {"name": "番茄", "amount": "2个"},
+        {"name": "鸡蛋", "amount": "3个"},
+        {"name": "葱花", "amount": "适量"},
+        {"name": "盐", "amount": "适量"}
+      ],
+      "steps": [
+        "将番茄切块，鸡蛋打散",
+        "热锅下油，炒散鸡蛋",
+        "加入番茄翻炒",
+        "加入调味料",
+        "撒上葱花即可"
+      ],
+      "image": "tomato_egg"
+    }
+  ]
+}
