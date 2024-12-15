@@ -9,15 +9,12 @@ import SwiftUI
 
 @main
 struct RandomEatsApp: App {
-    let persistenceController = PersistenceController.shared
-
-
+    @StateObject private var recipeViewModel = RecipeViewModel()
+    @StateObject private var favoriteManager = FavoriteManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-            
-
+            ContentView(recipeViewModel: recipeViewModel, favoriteManager: favoriteManager)
         }
     }
 }

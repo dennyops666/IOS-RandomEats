@@ -35,6 +35,81 @@
         "撒上葱花即可"
       ],
       "image": "tomato_egg"
+    },
+    {
+      "name": "意大利面",
+      "category": "西餐",
+      "ingredients": [
+        {"name": "意大利面", "amount": "200克"},
+        {"name": "番茄酱", "amount": "100克"},
+        {"name": "洋葱", "amount": "1个"},
+        {"name": "蒜末", "amount": "2瓣"},
+        {"name": "橄榄油", "amount": "2汤匙"}
+      ],
+      "steps": [
+        "煮意大利面至8分熟",
+        "热锅下橄榄油，炒香蒜末和洋葱",
+        "加入番茄酱翻炒",
+        "加入意大利面和适量面汤",
+        "撒上盐和黑胡椒调味"
+      ],
+      "image": "spaghetti"
+    },
+    {
+      "name": "抹茶蛋糕",
+      "category": "甜点",
+      "ingredients": [
+        {"name": "低筋面粉", "amount": "100克"},
+        {"name": "抹茶粉", "amount": "15克"},
+        {"name": "鸡蛋", "amount": "3个"},
+        {"name": "糖", "amount": "80克"},
+        {"name": "牛奶", "amount": "50ml"}
+      ],
+      "steps": [
+        "将鸡蛋打散，加入糖打发",
+        "混合筛过的面粉和抹茶粉",
+        "分次加入面粉抹茶混合物",
+        "加入牛奶搅拌均匀",
+        "倒入模具烤制25分钟"
+      ],
+      "image": "matcha_cake"
+    },
+    {
+      "name": "麻婆豆腐",
+      "category": "中餐",
+      "ingredients": [
+        {"name": "豆腐", "amount": "400克"},
+        {"name": "猪肉末", "amount": "100克"},
+        {"name": "豆瓣酱", "amount": "2汤匙"},
+        {"name": "花椒", "amount": "适量"},
+        {"name": "葱花", "amount": "适量"}
+      ],
+      "steps": [
+        "豆腐切块",
+        "热锅炒香肉末",
+        "加入豆瓣酱炒出香味",
+        "加入豆腐块和适量水",
+        "撒上花椒和葱花"
+      ],
+      "image": "mapo_tofu"
+    },
+    {
+      "name": "提拉米苏",
+      "category": "甜点",
+      "ingredients": [
+        {"name": "手指饼干", "amount": "200克"},
+        {"name": "马斯卡彭奶酪", "amount": "250克"},
+        {"name": "咖啡", "amount": "200ml"},
+        {"name": "可可粉", "amount": "适量"}
+      ],
+      "steps": [
+        "准备浓咖啡并冷却",
+        "将手指饼干浸泡在咖啡中",
+        "搅拌马斯卡彭奶酪至顺滑",
+        "分层放置饼干和奶酪",
+        "最后撒上可可粉"
+      ],
+      "image": "tiramisu"
     }
   ]
 }
