@@ -14,7 +14,9 @@ struct RandomEatsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(recipeViewModel: recipeViewModel, favoriteManager: favoriteManager)
+            SplashScreenView()
+                .environmentObject(recipeViewModel)
+                .environmentObject(favoriteManager)
         }
     }
 }
