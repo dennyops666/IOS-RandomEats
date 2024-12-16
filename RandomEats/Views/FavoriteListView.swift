@@ -1,41 +1,58 @@
 import SwiftUI
 
 struct FavoriteListView: View {
-    @ObservedObject var favoriteManager: FavoriteManager
+    @EnvironmentObject var favoriteManager: FavoriteManager
+    
+    init() {}
     
     var body: some View {
         List {
-            ForEach(favoriteManager.favorites.sorted(by: { $0.dateAdded > $1.dateAdded })) { favorite in
-                NavigationLink(destination: RecipeDetailView(recipe: favorite.recipe, favoriteManager: favoriteManager)) {
+            ForEach(favoriteManager.favorites.indices, id: \.self) { index in
+                NavigationLink {
+                    RecipeDetailView(recipe: favoriteManager.favorites[index])
+                } label: {
                     HStack {
-                        if let image = UIImage(named: favorite.recipe.image) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 60, height: 60)
-                                .cornerRadius(8)
+                        AsyncImage(url: URL(string: favoriteManager.favorites[index].image)) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                                    .frame(width: 60, height: 60)
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 60, height: 60)
+                                    .cornerRadius(8)
+                            case .failure:
+                                Image(systemName: "photo")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.gray)
+                            @unknown default:
+                                EmptyView()
+                            }
                         }
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(favorite.recipe.name)
+                        VStack(alignment: .leading) {
+                            Text(favoriteManager.favorites[index].name)
                                 .font(.headline)
-                            Text(favorite.recipe.category)
+                            Text(favoriteManager.favorites[index].category ?? "未分类")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.gray)
                         }
                     }
                 }
             }
-            .onDelete(perform: deleteFavorites)
+            .onDelete(perform: deleteFavorite(at:))
         }
-        .navigationTitle("收藏菜谱")
+        .navigationTitle("收藏夹")
         .listStyle(InsetGroupedListStyle())
     }
     
-    private func deleteFavorites(at offsets: IndexSet) {
-        let sortedFavorites = favoriteManager.favorites.sorted(by: { $0.dateAdded > $1.dateAdded })
+    private func deleteFavorite(at offsets: IndexSet) {
         offsets.forEach { index in
-            favoriteManager.removeFavorite(sortedFavorites[index])
+            favoriteManager.removeFavoriteAtIndex(index)
         }
     }
 }
@@ -43,7 +60,8 @@ struct FavoriteListView: View {
 struct FavoriteListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            FavoriteListView(favoriteManager: FavoriteManager())
+            FavoriteListView()
+                .environmentObject(FavoriteManager())
         }
     }
 }

@@ -1,97 +1,132 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var recipeViewModel: RecipeViewModel
-    @EnvironmentObject var favoriteManager: FavoriteManager
-    @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var recipeViewModel = RecipeViewModel()
+    @StateObject private var favoriteManager = FavoriteManager()
     @State private var selectedTab = 0
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            RandomRecipeView()
-                .tabItem {
-                    Label("随机", systemImage: "dice")
-                }
-                .tag(0)
-            
             NavigationView {
-                FavoriteListView(favoriteManager: favoriteManager)
-                    .navigationTitle("收藏")
+                HomeView()
             }
             .tabItem {
-                Label("收藏", systemImage: "heart.fill")
+                Image(systemName: "house.fill")
+                Text("首页")
+            }
+            .tag(0)
+            
+            NavigationView {
+                FavoriteListView()
+            }
+            .tabItem {
+                Image(systemName: "heart.fill")
+                Text("收藏")
             }
             .tag(1)
             
-            SettingsView()
-                .tabItem {
-                    Label("设置", systemImage: "gear")
-                }
-                .tag(2)
+            NavigationView {
+                SettingsView()
+            }
+            .tabItem {
+                Image(systemName: "gear")
+                Text("设置")
+            }
+            .tag(2)
         }
-        .accentColor(themeManager.accentColor)
-        .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+        .environmentObject(recipeViewModel)
+        .environmentObject(favoriteManager)
     }
 }
 
-struct RandomRecipeView: View {
+struct HomeView: View {
     @EnvironmentObject var recipeViewModel: RecipeViewModel
-    @EnvironmentObject var favoriteManager: FavoriteManager
+    @State private var selectedCategory: String? = nil
     @State private var showingCategorySelection = false
-    @State private var selectedCategory: String = ""
     
     var body: some View {
-        NavigationView {
+        ScrollView {
             VStack(spacing: 20) {
-                Button(action: {
-                    showingCategorySelection.toggle()
-                }) {
-                    Text(selectedCategory.isEmpty ? "全部分类" : selectedCategory)
-                        .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                }
-                
-                Button(action: {
-                    let category = selectedCategory.isEmpty ? nil : selectedCategory
-                    recipeViewModel.generateRandomRecipe(category: category)
-                }) {
-                    HStack {
-                        Image(systemName: "dice.fill")
-                        Text("随机生成菜谱")
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                
-                if let recipe = recipeViewModel.currentRecipe {
-                    NavigationLink(destination: RecipeDetailView(recipe: recipe, favoriteManager: favoriteManager)) {
-                        RecipeCard(recipe: recipe)
-                            .padding(.horizontal)
-                    }
-                } else {
-                    // 显示提示信息
-                    VStack(spacing: 12) {
-                        Image(systemName: "arrow.up.circle")
-                            .font(.system(size: 50))
-                            .foregroundColor(.gray)
-                        Text("点击上方按钮生成菜谱")
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 40)
-                }
+                generateRecipeButton
+                categorySelectionButton
+                mainContent
             }
-            .padding()
-            .navigationTitle("Random Eats")
-            .sheet(isPresented: $showingCategorySelection) {
-                // 这里添加分类选择视图
-                CategorySelectionView(viewModel: recipeViewModel) { category in
-                    selectedCategory = category
-                    recipeViewModel.generateRandomRecipe(category: category.isEmpty ? nil : category)
-                }
+            .padding(.vertical)
+        }
+        .navigationTitle("Random Eats")
+        .sheet(isPresented: $showingCategorySelection) {
+            CategorySelectionView(viewModel: recipeViewModel) { category in
+                selectedCategory = category
+                recipeViewModel.generateRandomRecipe(category: category.isEmpty ? nil : category)
             }
         }
+    }
+    
+    private var generateRecipeButton: some View {
+        Button(action: {
+            let category = selectedCategory ?? ""
+            recipeViewModel.generateRandomRecipe(category: category.isEmpty ? nil : category)
+        }) {
+            HStack {
+                Image(systemName: "dice.fill")
+                Text("随机生成菜谱")
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+        .padding(.horizontal)
+    }
+    
+    private var categorySelectionButton: some View {
+        Button(action: {
+            showingCategorySelection.toggle()
+        }) {
+            HStack {
+                Image(systemName: "list.bullet")
+                Text(selectedCategory ?? "全部分类")
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .foregroundColor(.primary)
+            .cornerRadius(8)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var mainContent: some View {
+        if recipeViewModel.isLoading {
+            ProgressView()
+                .scaleEffect(1.5)
+                .padding()
+        } else if let errorMessage = recipeViewModel.errorMessage {
+            Text(errorMessage)
+                .foregroundColor(.red)
+                .padding()
+        } else if let recipe = recipeViewModel.currentRecipe {
+            NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                RecipeCard(recipe: recipe)
+                    .padding(.horizontal)
+            }
+        } else {
+            VStack(spacing: 16) {
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 40))
+                    .foregroundColor(.gray)
+                Text("点击上方按钮生成菜谱")
+                    .foregroundColor(.gray)
+            }
+            .frame(maxWidth: .infinity, minHeight: 200)
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }

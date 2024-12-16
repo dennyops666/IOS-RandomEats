@@ -8,57 +8,61 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var themeManager: ThemeManager
-    @EnvironmentObject private var recipeViewModel: RecipeViewModel
-    @EnvironmentObject private var favoriteManager: FavoriteManager
+    @StateObject private var recipeViewModel = RecipeViewModel()
+    @StateObject private var favoriteManager = FavoriteManager()
+    @State private var selectedTab = 0
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                themeManager.backgroundColor
-                    .ignoresSafeArea()
-                
-                VStack(spacing: 20) {
-                    if let recipe = recipeViewModel.currentRecipe {
-                        ScrollView {
-                            RecipeDetailView(recipe: recipe)
-                                .padding()
-                        }
-                    } else {
-                        Text("No recipe loaded")
-                            .foregroundColor(themeManager.primaryTextColor)
-                    }
-                    
-                    Button(action: {
-                        recipeViewModel.generateRandomRecipe()
-                    }) {
-                        Text("Generate Random Recipe")
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(themeManager.accentColor)
-                            .cornerRadius(10)
-                    }
-                }
-                .padding()
+        TabView(selection: $selectedTab) {
+            NavigationView {
+                HomeView()
             }
-            .navigationTitle("Random Eats")
-            .navigationBarItems(
-                leading: NavigationLink(destination: FavoriteListView()) {
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(themeManager.accentColor)
-                },
-                trailing: NavigationLink(destination: SettingsView()) {
-                    Image(systemName: "gear")
-                        .foregroundColor(themeManager.accentColor)
-                }
-            )
+            .tabItem {
+                Image(systemName: "house.fill")
+                Text("首页")
+            }
+            .tag(0)
+            
+            NavigationView {
+                FavoriteListView()
+            }
+            .tabItem {
+                Image(systemName: "heart.fill")
+                Text("收藏")
+            }
+            .tag(1)
+            
+            NavigationView {
+                SettingsView()
+            }
+            .tabItem {
+                Image(systemName: "gear")
+                Text("设置")
+            }
+            .tag(2)
         }
+        .environmentObject(recipeViewModel)
+        .environmentObject(favoriteManager)
     }
 }
 
-#Preview {
-    ContentView()
-        .environmentObject(ThemeManager())
-        .environmentObject(RecipeViewModel())
-        .environmentObject(FavoriteManager())
+// 主页视图包装器
+struct HomeView: View {
+    var body: some View {
+        RecipeHomeView()
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        let favoriteManager = FavoriteManager()
+        let themeManager = ThemeManager()
+        let recipeViewModel = RecipeViewModel()
+        
+        ContentView()
+            .environmentObject(favoriteManager)
+            .environmentObject(themeManager)
+            .environmentObject(recipeViewModel)
+    }
 }

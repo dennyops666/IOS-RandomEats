@@ -52,7 +52,7 @@ struct SplashScreenView: View {
                             .rotationEffect(.degrees(-rotation))
                         
                         // 碗和筷子图标
-                        Image(systemName: "bowl.fill")
+                        Image(systemName: "fork.knife")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 110, height: 110)

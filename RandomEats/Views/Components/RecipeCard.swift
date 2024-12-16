@@ -5,50 +5,67 @@ struct RecipeCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 使用占位图片
-            if let image = UIImage(named: recipe.image) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 250)
-                    .cornerRadius(12)
-            } else {
-                Image(systemName: "photo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 250)
-                    .foregroundColor(.gray)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-            }
-            
-            Text(recipe.name)
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text(recipe.category)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("食材:")
-                    .font(.headline)
-                
-                ForEach(recipe.ingredients, id: \.name) { ingredient in
-                    Text("• \(ingredient.name): \(ingredient.amount)")
-                        .font(.subheadline)
+            AsyncImage(url: URL(string: recipe.image)) { phase in
+                switch phase {
+                case .empty:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            ProgressView()
+                                .scaleEffect(1.5)
+                        )
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 200)
+                        .clipped()
+                case .failure:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            Image(systemName: "photo")
+                                .font(.system(size: 40))
+                                .foregroundColor(.gray)
+                        )
+                @unknown default:
+                    EmptyView()
                 }
             }
-            .padding(.vertical, 4)
+            .cornerRadius(12)
             
-            Spacer()
+            VStack(alignment: .leading, spacing: 8) {
+                Text(recipe.name)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .lineLimit(2)
+                
+                Text(recipe.category)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Text("食材:")
+                    .font(.headline)
+                    .padding(.top, 4)
+                
+                ForEach(recipe.ingredients.prefix(3), id: \.name) { ingredient in
+                    Text("• \(ingredient.name): \(ingredient.amount)")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                }
+                
+                if recipe.ingredients.count > 3 {
+                    Text("...")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding()
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .cornerRadius(12)
-        .shadow(radius: 4)
+        .shadow(radius: 5)
     }
 }

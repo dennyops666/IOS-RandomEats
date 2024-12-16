@@ -3,16 +3,26 @@ import SwiftUI
 class ThemeManager: ObservableObject {
     @Published var isDarkMode: Bool {
         didSet {
-            UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
+            UserDefaults.standard.set(isDarkMode, forKey: "theme")
+            setAppearance(darkMode: isDarkMode)
         }
     }
     
     init() {
-        self.isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+        self.isDarkMode = UserDefaults.standard.bool(forKey: "theme")
+        setAppearance(darkMode: isDarkMode)
     }
     
     func toggleTheme() {
         isDarkMode.toggle()
+    }
+    
+    private func setAppearance(darkMode: Bool) {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.windows.forEach { window in
+                window.overrideUserInterfaceStyle = darkMode ? .dark : .light
+            }
+        }
     }
     
     // 主题颜色
@@ -29,7 +39,7 @@ class ThemeManager: ObservableObject {
     }
     
     var accentColor: Color {
-        isDarkMode ? Color.orange : Color.orange
+        Color.blue
     }
     
     var cardBackgroundColor: Color {

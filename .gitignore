@@ -1,6 +1,9 @@
 # Environment variables
 .env
 
+# Config files with sensitive data
+RandomEats/Config/APIConfig.swift
+
 # Python
 __pycache__/
 *.py[cod]

@@ -5,31 +5,34 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                Section {
-                    HStack {
-                        Label("深色模式", systemImage: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill")
-                        Spacer()
-                        Toggle("", isOn: $themeManager.isDarkMode)
+            Form {
+                Section(header: Text("外观")) {
+                    Toggle(isOn: $themeManager.isDarkMode) {
+                        Label("深色模式", systemImage: "moon.fill")
                     }
-                } header: {
-                    Text("外观设置")
                 }
                 
-                Section {
+                Section(header: Text("关于")) {
                     HStack {
                         Label("版本", systemImage: "info.circle")
                         Spacer()
                         Text("1.0.0")
                             .foregroundColor(.gray)
                     }
-                } header: {
-                    Text("关于")
                 }
             }
             .navigationTitle("设置")
-            .background(themeManager.backgroundColor)
-            .foregroundColor(themeManager.primaryTextColor)
+            .onAppear {
+                themeManager.isDarkMode = UIApplication.shared.windows.first?.traitCollection.userInterfaceStyle == .dark
+            }
+            .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
         }
+    }
+}
+
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        SettingsView()
+            .environmentObject(ThemeManager())
     }
 }

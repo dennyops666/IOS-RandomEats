@@ -20,7 +20,7 @@ struct CategorySelectionView: View {
                     }
                 }
                 
-                ForEach(viewModel.getAvailableCategories(), id: \.self) { category in
+                ForEach(Array(viewModel.getAvailableCategories), id: \.self) { category in
                     Button(action: {
                         onCategorySelected(category)
                         presentationMode.wrappedValue.dismiss()

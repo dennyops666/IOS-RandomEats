@@ -1,63 +1,72 @@
 import Foundation
+import Combine
 
 class RecipeViewModel: ObservableObject {
-    @Published var recipes: [Recipe] = []
+    private let apiService = RecipeAPIService()
+    
     @Published var currentRecipe: Recipe?
-    @Published var recentlyShownRecipes: Set<UUID> = []
-    private let maxRecentRecipes = 5
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published var showingCategorySelection = false
+    @Published var selectedCategory: String = ""
     
-    init() {
-        loadRecipes()
-    }
+    private var cancellables = Set<AnyCancellable>()
     
-    private func loadRecipes() {
-        guard let url = Bundle.main.url(forResource: "recipes", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            print("Error: Cannot find or load recipes.json")
-            return
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            let response = try decoder.decode(RecipeResponse.self, from: data)
-            self.recipes = response.recipes
-        } catch {
-            print("Error decoding recipes: \(error)")
-        }
+    // 获取所有可用的食物分类
+    var getAvailableCategories: [String] {
+        return [
+            "中餐",
+            "西餐",
+            "日料",
+            "韩餐",
+            "泰餐",
+            "快餐",
+            "甜点",
+            "饮品",
+            "其他"
+        ]
     }
     
     func generateRandomRecipe(category: String? = nil) {
-        let filteredRecipes: [Recipe]
-        if let category = category {
-            filteredRecipes = recipes.filter { $0.category == category }
-        } else {
-            filteredRecipes = recipes
-        }
+        isLoading = true
+        errorMessage = nil
+        currentRecipe = nil
         
-        guard !filteredRecipes.isEmpty else {
-            print("No recipes available for category: \(category ?? "all")")
-            return
-        }
-        
-        // Filter out recently shown recipes unless we have no choice
-        var availableRecipes = filteredRecipes.filter { !recentlyShownRecipes.contains($0.id) }
-        if availableRecipes.isEmpty {
-            availableRecipes = filteredRecipes
-            recentlyShownRecipes.removeAll()
-        }
-        
-        if let recipe = availableRecipes.randomElement() {
-            currentRecipe = recipe
-            recentlyShownRecipes.insert(recipe.id)
-            
-            // Remove oldest recipe if we exceed maxRecentRecipes
-            if recentlyShownRecipes.count > maxRecentRecipes {
-                recentlyShownRecipes.remove(recentlyShownRecipes.first!)
+        apiService.getRandomRecipe(category: category)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                switch completion {
+                case .failure(let error):
+                    print("API Error: \(error)")  // 添加调试日志
+                    switch error {
+                    case .decodingError(let decodingError):
+                        print("Decoding Error Details: \(decodingError)")  // 添加详细解码错误信息
+                        self?.errorMessage = "解析数据时出错：\(decodingError.localizedDescription)"
+                    case .networkError(let networkError):
+                        print("Network Error Details: \(networkError)")  // 添加网络错误详情
+                        self?.errorMessage = "网络连接出错：\(networkError.localizedDescription)"
+                    case .invalidURL:
+                        self?.errorMessage = "无效的请求地址"
+                    case .noData:
+                        self?.errorMessage = "未找到相关菜谱，请重试"
+                    case .quotaExceeded:
+                        self?.errorMessage = "API 配额已用完，正在使用缓存数据"
+                    case .unknown:
+                        self?.errorMessage = "未知错误，请重试"
+                    }
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] recipe in
+                print("Received Recipe: \(recipe)")  // 添加成功接收数据的日志
+                self?.currentRecipe = recipe
             }
-        }
+            .store(in: &cancellables)
     }
     
-    func getAvailableCategories() -> [String] {
-        Array(Set(recipes.map { $0.category })).sorted()
+    func clearRecipe() {
+        currentRecipe = nil
+        errorMessage = nil
     }
 }

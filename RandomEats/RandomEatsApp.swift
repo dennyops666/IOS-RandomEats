@@ -9,16 +9,17 @@ import SwiftUI
 
 @main
 struct RandomEatsApp: App {
-    @StateObject private var recipeViewModel = RecipeViewModel()
     @StateObject private var favoriteManager = FavoriteManager()
     @StateObject private var themeManager = ThemeManager()
+    @StateObject private var recipeViewModel = RecipeViewModel()
     
     var body: some Scene {
         WindowGroup {
-            SplashScreenView()
-                .environmentObject(recipeViewModel)
+            ContentView()
                 .environmentObject(favoriteManager)
                 .environmentObject(themeManager)
+                .environmentObject(recipeViewModel)
+                .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
         }
     }
 }
