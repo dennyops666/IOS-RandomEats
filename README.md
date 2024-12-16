@@ -15,9 +15,6 @@ Random Eats 是一款简单易用的 iOS 应用，旨在帮助用户快速生成
 ![主界面](/assets/main.png)
 
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/dennyops666/IOS-RandomEats/main/assets/main_interface.png" alt="Random Eats 主界面" width="300"/>
-</div>
 
 ## 主要功能
 
