@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct SplashScreenView: View {
-    @EnvironmentObject var recipeViewModel: RecipeViewModel
-    @EnvironmentObject var favoriteManager: FavoriteManager
     @State private var isActive = false
     @State private var size = 0.6
     @State private var opacity = 0.0
@@ -17,9 +15,12 @@ struct SplashScreenView: View {
     let accentColor = Color(red: 255/255, green: 140/255, blue: 0/255).opacity(0.95) // 明亮橙色
     let secondaryColor = Color(red: 128/255, green: 128/255, blue: 128/255).opacity(0.75) // 中性灰色
     
+    @EnvironmentObject var recipeViewModel: RecipeViewModel
+    @EnvironmentObject var favoriteManager: FavoriteManager
+    
     var body: some View {
         if isActive {
-            ContentView(recipeViewModel: recipeViewModel, favoriteManager: favoriteManager)
+            ContentView()
         } else {
             ZStack {
                 // 渐变背景

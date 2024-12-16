@@ -11,12 +11,14 @@ import SwiftUI
 struct RandomEatsApp: App {
     @StateObject private var recipeViewModel = RecipeViewModel()
     @StateObject private var favoriteManager = FavoriteManager()
+    @StateObject private var themeManager = ThemeManager()
     
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
                 .environmentObject(recipeViewModel)
                 .environmentObject(favoriteManager)
+                .environmentObject(themeManager)
         }
     }
 }
