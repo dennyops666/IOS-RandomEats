@@ -29,9 +29,22 @@
 		D8A5A32A2D0EC7A40091A11D /* RandomEatsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandomEatsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D8BDC7842D0FFE2000BE24F2 /* Exceptions for "RandomEats" folder in "RandomEats" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ContentView.swift,
+			);
+			target = D8A5A30A2D0EC7A20091A11D /* RandomEats */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D8A5A30D2D0EC7A20091A11D /* RandomEats */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D8BDC7842D0FFE2000BE24F2 /* Exceptions for "RandomEats" folder in "RandomEats" target */,
+			);
 			path = RandomEats;
 			sourceTree = "<group>";
 		};

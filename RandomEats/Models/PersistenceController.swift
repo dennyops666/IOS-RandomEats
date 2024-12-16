@@ -3,6 +3,13 @@ import CoreData
 struct PersistenceController {
     static let shared = PersistenceController()
     
+    // 添加预览支持
+    @MainActor
+    static let preview: PersistenceController = {
+        let result = PersistenceController(inMemory: true)
+        return result
+    }()
+    
     let container: NSPersistentContainer
     
     init(inMemory: Bool = false) {
@@ -17,5 +24,7 @@ struct PersistenceController {
                 fatalError("Error: \(error.localizedDescription)")
             }
         }
+        
+        container.viewContext.automaticallyMergesChangesFromParent = true
     }
 }
