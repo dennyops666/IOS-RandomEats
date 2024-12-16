@@ -12,7 +12,7 @@ Random Eats 是一款简单易用的 iOS 应用，旨在帮助用户快速生成
 2. 想尝试新菜谱或探索不同菜系的用户
 
 ## UI界面
-![主界面](/assets/main_interface.png)
+![主界面](/assets/main.png)
 
 
 <div align="center">
