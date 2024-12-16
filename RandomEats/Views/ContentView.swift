@@ -46,45 +46,55 @@ struct RandomRecipeView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                // 分类选择按钮
-                Button(action: {
-                    showingCategorySelection = true
-                }) {
-                    HStack {
-                        Image(systemName: "list.bullet")
-                        Text(selectedCategory.isEmpty ? "全部分类" : selectedCategory)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // 分类选择按钮
+                    Button(action: {
+                        showingCategorySelection = true
+                    }) {
+                        HStack {
+                            Image(systemName: "list.bullet")
+                            Text(selectedCategory.isEmpty ? "全部分类" : selectedCategory)
+                        }
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(10)
                     }
-                    .padding()
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(10)
-                }
-                .padding()
-                
-                // 随机菜谱生成按钮
-                Button(action: {
-                    recipeViewModel.generateRandomRecipe(category: selectedCategory.isEmpty ? nil : selectedCategory)
-                }) {
-                    HStack {
-                        Image(systemName: "dice")
-                        Text("随机生成菜谱")
+                    
+                    // 随机菜谱生成按钮
+                    Button(action: {
+                        recipeViewModel.generateRandomRecipe(category: selectedCategory.isEmpty ? nil : selectedCategory)
+                    }) {
+                        HStack {
+                            Image(systemName: "dice")
+                            Text("随机生成菜谱")
+                        }
+                        .font(.title2)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                     }
-                    .font(.title2)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
-                .padding()
-                
-                if let currentRecipe = recipeViewModel.currentRecipe {
-                    NavigationLink(destination: RecipeDetailView(recipe: currentRecipe, favoriteManager: favoriteManager)) {
-                        RecipeCard(recipe: currentRecipe)
-                            .padding()
+                    
+                    // 菜谱卡片
+                    if let currentRecipe = recipeViewModel.currentRecipe {
+                        NavigationLink(destination: RecipeDetailView(recipe: currentRecipe, favoriteManager: favoriteManager)) {
+                            RecipeCard(recipe: currentRecipe)
+                                .padding(.horizontal)
+                        }
+                    } else {
+                        // 显示提示信息
+                        VStack(spacing: 12) {
+                            Image(systemName: "arrow.up.circle")
+                                .font(.system(size: 50))
+                                .foregroundColor(.gray)
+                            Text("点击上方按钮生成菜谱")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.top, 40)
                     }
                 }
-                
-                Spacer()
+                .padding(.vertical)
             }
             .navigationTitle("Random Eats")
         }

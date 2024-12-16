@@ -38,6 +38,11 @@ class FavoriteManager: ObservableObject {
         saveFavorites()
     }
     
+    func removeFavoriteByRecipe(_ recipe: Recipe) {
+        favorites.removeAll { $0.recipe.id == recipe.id }
+        saveFavorites()
+    }
+    
     func isFavorite(_ recipe: Recipe) -> Bool {
         favorites.contains { $0.recipe.id == recipe.id }
     }

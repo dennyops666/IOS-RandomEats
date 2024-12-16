@@ -6,24 +6,7 @@ struct RecipeDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // 使用占位图片
-                Image(recipe.image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 300)
-                    .clipped()
-                    .overlay(
-                        Group {
-                            if UIImage(named: recipe.image) == nil {
-                                Image("recipe_placeholder")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                            }
-                        }
-                    )
-                
+            VStack(alignment: .leading, spacing: 16) {
                 // 标题部分
                 VStack(alignment: .leading, spacing: 8) {
                     Text(recipe.name)
@@ -33,6 +16,25 @@ struct RecipeDetailView: View {
                     Text(recipe.category)
                         .font(.title3)
                         .foregroundColor(.secondary)
+                }
+                .padding(.horizontal)
+                
+                // 图片部分
+                if let image = UIImage(named: recipe.image) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .clipped()
+                } else {
+                    Image(systemName: "photo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .foregroundColor(.gray)
+                        .background(Color(.systemGray6))
                 }
                 
                 // 食材部分
@@ -52,6 +54,7 @@ struct RecipeDetailView: View {
                         }
                     }
                 }
+                .padding(.horizontal)
                 
                 // 步骤部分
                 VStack(alignment: .leading, spacing: 12) {
@@ -63,31 +66,29 @@ struct RecipeDetailView: View {
                         HStack(alignment: .top) {
                             Text("\(index + 1).")
                                 .fontWeight(.bold)
-                                .frame(width: 25, alignment: .leading)
+                                .foregroundColor(.blue)
                             Text(step)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding()
+            .padding(.vertical)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(trailing: favoriteButton)
-    }
-    
-    private var favoriteButton: some View {
-        Button(action: {
-            if favoriteManager.isFavorite(recipe) {
-                if let favorite = favoriteManager.favorites.first(where: { $0.recipe.id == recipe.id }) {
-                    favoriteManager.removeFavorite(favorite)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    if favoriteManager.isFavorite(recipe) {
+                        favoriteManager.removeFavoriteByRecipe(recipe)
+                    } else {
+                        favoriteManager.addFavorite(recipe)
+                    }
+                }) {
+                    Image(systemName: favoriteManager.isFavorite(recipe) ? "heart.fill" : "heart")
+                        .foregroundColor(favoriteManager.isFavorite(recipe) ? .red : .gray)
                 }
-            } else {
-                favoriteManager.addFavorite(recipe)
             }
-        }) {
-            Image(systemName: favoriteManager.isFavorite(recipe) ? "heart.fill" : "heart")
-                .foregroundColor(favoriteManager.isFavorite(recipe) ? .red : .gray)
         }
     }
 }

@@ -6,21 +6,22 @@ struct RecipeCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 使用占位图片
-            Image(recipe.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 200)
-                .clipped()
-                .cornerRadius(12)
-                .overlay(
-                    Group {
-                        if UIImage(named: recipe.image) == nil {
-                            Image("recipe_placeholder")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        }
-                    }
-                )
+            if let image = UIImage(named: recipe.image) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 200)
+                    .clipped()
+                    .cornerRadius(12)
+            } else {
+                Image(systemName: "photo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 200)
+                    .foregroundColor(.gray)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+            }
             
             Text(recipe.name)
                 .font(.title)
