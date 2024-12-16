@@ -1,14 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "kung_pao_chicken.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "kung_pao_chicken@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "kung_pao_chicken@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

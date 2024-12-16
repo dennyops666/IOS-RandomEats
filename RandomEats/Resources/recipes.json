@@ -110,6 +110,82 @@
         "最后撒上可可粉"
       ],
       "image": "tiramisu"
+    },
+    {
+      "name": "水煮鱼",
+      "category": "中餐",
+      "ingredients": [
+        {"name": "鱼片", "amount": "400克"},
+        {"name": "豆芽", "amount": "200克"},
+        {"name": "青菜", "amount": "200克"},
+        {"name": "辣椒", "amount": "适量"},
+        {"name": "花椒", "amount": "适量"}
+      ],
+      "steps": [
+        "鱼片腌制",
+        "烫豆芽和青菜",
+        "煮制麻辣汤底",
+        "放入鱼片",
+        "淋上热油"
+      ],
+      "image": "boiled_fish"
+    },
+    {
+      "name": "牛排",
+      "category": "西餐",
+      "ingredients": [
+        {"name": "牛排", "amount": "300克"},
+        {"name": "黑胡椒", "amount": "适量"},
+        {"name": "迷迭香", "amount": "1枝"},
+        {"name": "蒜", "amount": "2瓣"},
+        {"name": "黄油", "amount": "30克"}
+      ],
+      "steps": [
+        "牛排室温回温",
+        "撒盐和黑胡椒腌制",
+        "热锅煎制两面",
+        "加入黄油和香料",
+        "静置5分钟"
+      ],
+      "image": "steak"
+    },
+    {
+      "name": "寿司",
+      "category": "日料",
+      "ingredients": [
+        {"name": "寿司米", "amount": "300克"},
+        {"name": "三文鱼", "amount": "200克"},
+        {"name": "海苔", "amount": "3张"},
+        {"name": "黄瓜", "amount": "1根"},
+        {"name": "寿司醋", "amount": "45ml"}
+      ],
+      "steps": [
+        "煮寿司米",
+        "拌入寿司醋",
+        "准备配料",
+        "卷制寿司",
+        "切段即可"
+      ],
+      "image": "sushi"
+    },
+    {
+      "name": "芝士蛋糕",
+      "category": "甜点",
+      "ingredients": [
+        {"name": "奶油奶酪", "amount": "500克"},
+        {"name": "饼干底", "amount": "200克"},
+        {"name": "糖", "amount": "150克"},
+        {"name": "鸡蛋", "amount": "3个"},
+        {"name": "淡奶油", "amount": "200ml"}
+      ],
+      "steps": [
+        "制作饼干底",
+        "搅拌奶油奶酪",
+        "加入其他材料",
+        "倒入模具",
+        "烤制45分钟"
+      ],
+      "image": "cheesecake"
     }
   ]
 }

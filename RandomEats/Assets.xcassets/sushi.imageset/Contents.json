@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "matcha_cake.png",
+      "filename" : "sushi.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "sushi@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "sushi@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

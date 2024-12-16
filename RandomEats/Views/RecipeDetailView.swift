@@ -23,16 +23,16 @@ struct RecipeDetailView: View {
                 if let image = UIImage(named: recipe.image) {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 200)
+                        .frame(height: 250)
                         .clipped()
                 } else {
                     Image(systemName: "photo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 200)
+                        .frame(height: 250)
                         .foregroundColor(.gray)
                         .background(Color(.systemGray6))
                 }

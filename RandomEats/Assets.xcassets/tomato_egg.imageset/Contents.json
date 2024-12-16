@@ -1,14 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "tomato_egg.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "tomato_egg@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "tomato_egg@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
