@@ -1,8 +1,40 @@
 import Foundation
 
+// 基础模型
+struct Recipe: Identifiable, Codable, Hashable {
+    let id: String
+    let name: String
+    let category: String?
+    let image: String
+    var ingredients: [Ingredient]
+    var steps: [String]
+    
+    static func == (lhs: Recipe, rhs: Recipe) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+struct Ingredient: Codable, Hashable {
+    let name: String
+    let amount: String
+    
+    static func == (lhs: Ingredient, rhs: Ingredient) -> Bool {
+        return lhs.name == rhs.name && lhs.amount == rhs.amount
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(amount)
+    }
+}
+
 // TheMealDB API 响应模型
-struct MealDBResponse: Codable {
-    let meals: [MealDBRecipe]?
+struct MealResponse: Codable {
+    let meals: [MealDBRecipe]
 }
 
 struct MealDBRecipe: Codable {
@@ -25,8 +57,10 @@ struct MealDBRecipe: Codable {
     let strMeasure3: String?
     let strMeasure4: String?
     let strMeasure5: String?
-    
-    // 将计算属性改为方法
+}
+
+// 扩展 MealDBRecipe 以提供转换方法
+extension MealDBRecipe {
     func asRecipe() -> Recipe {
         // 处理食材和用量
         var ingredients: [Ingredient] = []
@@ -47,14 +81,15 @@ struct MealDBRecipe: Codable {
         
         // 处理烹饪步骤
         let steps = strInstructions?
-            .components(separatedBy: "\r\n")
+            .split(separator: ".")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-            ?? []
+            .map { String($0) } ?? []
         
         return Recipe(
             id: idMeal,
             name: strMeal,
-            category: strCategory ?? "其他",
+            category: strCategory,
             image: strMealThumb ?? "",
             ingredients: ingredients,
             steps: steps
@@ -62,24 +97,13 @@ struct MealDBRecipe: Codable {
     }
 }
 
-struct Recipe: Identifiable, Codable, Hashable {
-    let id: String
-    let name: String
-    let category: String
-    let image: String
-    let ingredients: [Ingredient]
-    let steps: [String]
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: Recipe, rhs: Recipe) -> Bool {
-        return lhs.id == rhs.id
-    }
+// Response model for category filter endpoint
+struct CategoryMealResponse: Codable {
+    let meals: [CategoryMeal]?
 }
 
-struct Ingredient: Codable, Hashable {
-    let name: String
-    let amount: String
+struct CategoryMeal: Codable {
+    let idMeal: String
+    let strMeal: String
+    let strMealThumb: String
 }

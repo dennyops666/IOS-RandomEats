@@ -8,25 +8,13 @@ struct CategorySelectionView: View {
     var body: some View {
         NavigationView {
             List {
-                Button(action: {
-                    onCategorySelected("")
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    HStack {
-                        Text("全部分类")
-                        Spacer()
-                        Image(systemName: "arrow.right.circle")
-                            .foregroundColor(.blue)
-                    }
-                }
-                
-                ForEach(Array(viewModel.getAvailableCategories), id: \.self) { category in
+                ForEach(viewModel.getAvailableCategories, id: \.apiName) { category in
                     Button(action: {
-                        onCategorySelected(category)
+                        onCategorySelected(category.apiName)
                         presentationMode.wrappedValue.dismiss()
                     }) {
                         HStack {
-                            Text(category)
+                            Text(category.displayName)
                             Spacer()
                             Image(systemName: "arrow.right.circle")
                                 .foregroundColor(.blue)

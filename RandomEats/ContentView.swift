@@ -10,45 +10,44 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var recipeViewModel = RecipeViewModel()
     @StateObject private var favoriteManager = FavoriteManager()
-    @State private var selectedTab = 0
-    @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var themeManager = ThemeManager()
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView {
             NavigationView {
-                HomeView()
+                RecipeHomeView()
+                    .navigationBarTitle("随机菜谱", displayMode: .inline)
             }
             .tabItem {
-                Image(systemName: "house.fill")
-                Text("首页")
+                Label("首页", systemImage: "house")
             }
-            .tag(0)
             
             NavigationView {
-                FavoriteListView()
+                FavoriteView()
+                    .navigationBarTitle("收藏", displayMode: .inline)
             }
             .tabItem {
-                Image(systemName: "heart.fill")
-                Text("收藏")
+                Label("收藏", systemImage: "heart")
             }
-            .tag(1)
             
             NavigationView {
                 SettingsView()
+                    .navigationBarTitle("设置", displayMode: .inline)
             }
             .tabItem {
-                Image(systemName: "gear")
-                Text("设置")
+                Label("设置", systemImage: "gear")
             }
-            .tag(2)
         }
         .environmentObject(recipeViewModel)
         .environmentObject(favoriteManager)
+        .environmentObject(themeManager)
     }
 }
 
 // 主页视图包装器
 struct HomeView: View {
+    @StateObject private var viewModel = RecipeViewModel()
+    
     var body: some View {
         RecipeHomeView()
     }

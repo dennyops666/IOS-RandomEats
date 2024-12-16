@@ -7,6 +7,42 @@ struct RecipeHomeView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            // 随机生成按钮
+            Button(action: {
+                recipeViewModel.generateRandomRecipe()
+            }) {
+                HStack {
+                    Image(systemName: "dice")
+                    Text("随机生成菜谱")
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(10)
+            }
+            .disabled(recipeViewModel.isLoading)
+            .padding(.horizontal)
+            
+            // 分类显示
+            if let recipe = recipeViewModel.currentRecipe {
+                HStack {
+                    Image(systemName: "list.bullet")
+                    Text(recipeViewModel.getDisplayName(for: recipe.category ?? "all"))
+                        .font(.headline)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal)
+                .frame(maxWidth: .infinity)
+                .background(Color(UIColor.secondarySystemBackground))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .onTapGesture {
+                    recipeViewModel.showingCategorySelection.toggle()
+                }
+            }
+            
             if recipeViewModel.isLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
@@ -29,40 +65,24 @@ struct RecipeHomeView: View {
                 }
             }
             
-            Button(action: {
-                recipeViewModel.generateRandomRecipe()
-            }) {
-                HStack {
-                    Image(systemName: "dice")
-                    Text("随机生成菜谱")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .cornerRadius(10)
-            }
-            .disabled(recipeViewModel.isLoading)
-            .padding(.horizontal)
-            
             if recipeViewModel.showingCategorySelection {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
-                        ForEach(recipeViewModel.getAvailableCategories, id: \.self) { category in
+                        ForEach(recipeViewModel.getAvailableCategories, id: \.apiName) { category in
                             Button(action: {
-                                recipeViewModel.selectedCategory = category
-                                recipeViewModel.generateRandomRecipe()
+                                recipeViewModel.selectedCategory = category.apiName
+                                recipeViewModel.showingCategorySelection = false
+                                recipeViewModel.generateRandomRecipe(category: category.apiName)
                             }) {
-                                Text(category)
+                                Text(category.displayName)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                                     .background(
-                                        recipeViewModel.selectedCategory == category ?
+                                        recipeViewModel.selectedCategory == category.apiName ?
                                             Color.blue : Color.gray.opacity(0.2)
                                     )
                                     .foregroundColor(
-                                        recipeViewModel.selectedCategory == category ?
+                                        recipeViewModel.selectedCategory == category.apiName ?
                                             .white : .primary
                                     )
                                     .cornerRadius(15)
@@ -71,19 +91,12 @@ struct RecipeHomeView: View {
                     }
                     .padding(.horizontal)
                 }
+                .padding(.vertical, 8)
             }
+            
+            Spacer()
         }
-        .navigationTitle("随机菜谱")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    recipeViewModel.showingCategorySelection.toggle()
-                }) {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .imageScale(.large)
-                }
-            }
-        }
+        .navigationBarTitle("随机菜谱", displayMode: .inline)
         .onAppear {
             if recipeViewModel.currentRecipe == nil {
                 recipeViewModel.generateRandomRecipe()

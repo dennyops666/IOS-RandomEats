@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipeDetailView: View {
     let recipe: Recipe
     @EnvironmentObject var favoriteManager: FavoriteManager
+    @EnvironmentObject var recipeViewModel: RecipeViewModel
     
     var body: some View {
         ScrollView {
@@ -46,37 +47,34 @@ struct RecipeDetailView: View {
                         }
                     }
                     
-                    Text(recipe.category)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    if let category = recipe.category {
+                        Text(recipeViewModel.getDisplayName(for: category))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
                     
-                    Divider()
-                    
-                    Text("食材")
+                    Text("食材:")
                         .font(.headline)
+                        .padding(.top, 8)
                     
                     ForEach(recipe.ingredients, id: \.name) { ingredient in
                         HStack {
                             Text("•")
-                            Text(ingredient.name)
-                            Spacer()
-                            Text(ingredient.amount)
-                                .foregroundColor(.secondary)
+                            Text("\(ingredient.name): \(ingredient.amount)")
                         }
+                        .font(.subheadline)
                     }
                     
-                    Divider()
-                    
-                    Text("步骤")
-                        .font(.headline)
-                    
-                    ForEach(Array(recipe.steps.enumerated()), id: \.0) { index, step in
-                        HStack(alignment: .top) {
-                            Text("\(index + 1).")
-                                .foregroundColor(.secondary)
-                            Text(step)
+                    if !recipe.steps.isEmpty {
+                        Text("步骤:")
+                            .font(.headline)
+                            .padding(.top, 16)
+                        
+                        ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
+                            Text("\(index + 1). \(step)")
+                                .font(.subheadline)
+                                .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
                 .padding()
@@ -101,6 +99,7 @@ struct RecipeDetailView_Previews: PreviewProvider {
                 steps: ["步骤1", "步骤2"]
             ))
             .environmentObject(FavoriteManager())
+            .environmentObject(RecipeViewModel())
         }
     }
 }

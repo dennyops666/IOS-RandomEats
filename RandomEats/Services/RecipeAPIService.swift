@@ -8,6 +8,7 @@ class RecipeAPIService {
     private var loadedRecipes: [String: [Recipe]] = [:] // 按类别存储菜谱
     private var retryAttempt = 0
     private let maxRetries = AppConfig.API.maxRetries
+    private var retryDelay: TimeInterval = 1.0 // 初始重试延迟时间（秒）
     
     init() {
         let configuration = URLSessionConfiguration.default
@@ -20,28 +21,46 @@ class RecipeAPIService {
     }
     
     func getRandomRecipe(category: String? = nil) -> AnyPublisher<Recipe, APIError> {
-        return fetchRandomRecipe(category: category)
-            .retry(maxRetries)
-            .catch { error -> AnyPublisher<Recipe, APIError> in
+        fetchRandomRecipe(category: category)
+            .catch { [weak self] error -> AnyPublisher<Recipe, APIError> in
+                guard let self = self else {
+                    return Fail(error: APIError.unknown(NSError(domain: "RecipeAPIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Service was deallocated"]))).eraseToAnyPublisher()
+                }
+                
                 if self.retryAttempt < self.maxRetries {
                     self.retryAttempt += 1
-                    return self.getRandomRecipe(category: category)
+                    print("Retrying API call (attempt \(self.retryAttempt)/\(self.maxRetries))...")
+                    
+                    // 使用指数退避策略
+                    let delay = self.retryDelay * pow(2.0, Double(self.retryAttempt - 1))
+                    self.retryDelay = min(delay, 10.0) // 最大延迟10秒
+                    
+                    return Just(())
+                        .delay(for: .seconds(delay), scheduler: DispatchQueue.global())
+                        .flatMap { _ in self.getRandomRecipe(category: category) }
+                        .eraseToAnyPublisher()
                 }
+                
                 self.retryAttempt = 0
-                return Fail(error: error).eraseToAnyPublisher()
+                self.retryDelay = 1.0
+                if let apiError = error as? APIError {
+                    return Fail(error: apiError).eraseToAnyPublisher()
+                } else {
+                    return Fail(error: APIError.unknown(error)).eraseToAnyPublisher()
+                }
             }
             .eraseToAnyPublisher()
     }
     
     private func fetchRandomRecipe(category: String? = nil) -> AnyPublisher<Recipe, APIError> {
         var components = URLComponents(string: "\(AppConfig.API.baseURL)/random.php")!
+        var isCategoryFilter = false
         
-        // 如果指定了类别，使用 filter.php 端点
         if let category = category, category != "all" {
             components = URLComponents(string: "\(AppConfig.API.baseURL)/filter.php")!
             components.queryItems = [URLQueryItem(name: "c", value: category)]
+            isCategoryFilter = true
         } else {
-            // 添加随机参数来避免缓存
             components.queryItems = [URLQueryItem(name: "t", value: "\(Date().timeIntervalSince1970)")]
         }
         
@@ -49,46 +68,49 @@ class RecipeAPIService {
             return Fail(error: APIError.invalidURL).eraseToAnyPublisher()
         }
         
-        var request = URLRequest(url: url)
-        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         
-        return session.dataTaskPublisher(for: request)
-            .mapError { _ in APIError.networkError(NSError(domain: "NetworkError", code: -1009)) }
-            .flatMap { [weak self] data, response -> AnyPublisher<Recipe, APIError> in
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    return Fail(error: APIError.networkError(NSError(domain: "InvalidResponse", code: -1))).eraseToAnyPublisher()
+        let publisher = session.dataTaskPublisher(for: request)
+            .map(\.data)
+            .mapError { APIError.networkError($0) }
+        
+        if isCategoryFilter {
+            return publisher
+                .decode(type: CategoryMealResponse.self, decoder: JSONDecoder())
+                .mapError { error -> APIError in
+                    if let decodingError = error as? DecodingError {
+                        return .decodingError(decodingError)
+                    }
+                    return error as? APIError ?? .unknown(error)
                 }
-                
-                guard 200...299 ~= httpResponse.statusCode else {
-                    return Fail(error: APIError.networkError(NSError(domain: "HTTPError", code: httpResponse.statusCode))).eraseToAnyPublisher()
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(MealDBResponse.self, from: data)
-                    
+                .flatMap { response -> AnyPublisher<Recipe, APIError> in
                     guard let meals = response.meals, !meals.isEmpty else {
                         return Fail(error: APIError.noData).eraseToAnyPublisher()
                     }
-                    
-                    // 随机选择一个菜谱
                     let randomIndex = Int.random(in: 0..<meals.count)
-                    let recipe = meals[randomIndex].asRecipe()
-                    
-                    // 如果是按类别筛选，需要获取完整的菜谱详情
-                    if category != nil && category != "all" {
-                        return self?.fetchRecipeDetails(id: recipe.id) ?? 
-                            Fail(error: APIError.noData).eraseToAnyPublisher()
+                    let mealId = meals[randomIndex].idMeal
+                    return self.fetchRecipeDetails(id: mealId)
+                }
+                .eraseToAnyPublisher()
+        } else {
+            return publisher
+                .decode(type: MealResponse.self, decoder: JSONDecoder())
+                .mapError { error -> APIError in
+                    if let decodingError = error as? DecodingError {
+                        return .decodingError(decodingError)
                     }
-                    
-                    return Just(recipe)
+                    return error as? APIError ?? .unknown(error)
+                }
+                .flatMap { response -> AnyPublisher<Recipe, APIError> in
+                    guard let meal = response.meals.first else {
+                        return Fail(error: APIError.noData).eraseToAnyPublisher()
+                    }
+                    return Just(meal.asRecipe())
                         .setFailureType(to: APIError.self)
                         .eraseToAnyPublisher()
-                } catch {
-                    return Fail(error: APIError.decodingError(error as? DecodingError ?? DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: error.localizedDescription)))).eraseToAnyPublisher()
                 }
-            }
-            .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
+        }
     }
     
     private func fetchRecipeDetails(id: String) -> AnyPublisher<Recipe, APIError> {
@@ -100,31 +122,37 @@ class RecipeAPIService {
         }
         
         return session.dataTaskPublisher(for: url)
-            .mapError { _ in APIError.networkError(NSError(domain: "NetworkError", code: -1009)) }
-            .flatMap { data, response -> AnyPublisher<Recipe, APIError> in
+            .tryMap { data, response -> Data in
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    return Fail(error: APIError.networkError(NSError(domain: "InvalidResponse", code: -1))).eraseToAnyPublisher()
+                    throw APIError.invalidResponse
                 }
                 
-                guard 200...299 ~= httpResponse.statusCode else {
-                    return Fail(error: APIError.networkError(NSError(domain: "HTTPError", code: httpResponse.statusCode))).eraseToAnyPublisher()
+                guard (200...299).contains(httpResponse.statusCode) else {
+                    print("API Error: HTTP \(httpResponse.statusCode)")
+                    throw APIError.httpError(httpResponse.statusCode)
                 }
                 
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(MealDBResponse.self, from: data)
-                    
-                    guard let meals = response.meals, !meals.isEmpty else {
-                        return Fail(error: APIError.noData).eraseToAnyPublisher()
-                    }
-                    
-                    let recipe = meals[0].asRecipe()
-                    return Just(recipe)
-                        .setFailureType(to: APIError.self)
-                        .eraseToAnyPublisher()
-                } catch {
-                    return Fail(error: APIError.decodingError(error as? DecodingError ?? DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: error.localizedDescription)))).eraseToAnyPublisher()
+                guard !data.isEmpty else {
+                    print("API Error: Empty response data")
+                    throw APIError.noData
                 }
+                
+                return data
+            }
+            .decode(type: MealResponse.self, decoder: JSONDecoder())
+            .tryMap { response -> Recipe in
+                guard let meal = response.meals.first else {
+                    print("API Error: No meal found in response")
+                    throw APIError.noData
+                }
+                return meal.asRecipe()
+            }
+            .mapError { error -> APIError in
+                if let apiError = error as? APIError {
+                    return apiError
+                }
+                print("API Error: \(error.localizedDescription)")
+                return APIError.unknown(error)
             }
             .eraseToAnyPublisher()
     }

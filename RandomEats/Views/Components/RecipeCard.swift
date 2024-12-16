@@ -42,27 +42,32 @@ struct RecipeCard: View {
                     .fontWeight(.bold)
                     .lineLimit(2)
                 
-                Text(recipe.category)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Text("食材:")
-                    .font(.headline)
-                    .padding(.top, 4)
-                
-                ForEach(recipe.ingredients.prefix(3), id: \.name) { ingredient in
-                    Text("• \(ingredient.name): \(ingredient.amount)")
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                }
-                
-                if recipe.ingredients.count > 3 {
-                    Text("...")
+                if let category = recipe.category {
+                    Text(category)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+                
+                if !recipe.ingredients.isEmpty {
+                    Text("食材:")
+                        .font(.headline)
+                        .padding(.top, 4)
+                    
+                    ForEach(recipe.ingredients.prefix(3), id: \.name) { ingredient in
+                        Text("• \(ingredient.name): \(ingredient.amount)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    if recipe.ingredients.count > 3 {
+                        Text("...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.bottom)
         }
         .background(Color(.systemBackground))
         .cornerRadius(12)
