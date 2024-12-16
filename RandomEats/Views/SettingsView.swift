@@ -16,7 +16,7 @@ struct SettingsView: View {
                     HStack {
                         Label("版本", systemImage: "info.circle")
                         Spacer()
-                        Text("1.0.0")
+                        Text("v1.1.0")
                             .foregroundColor(.gray)
                     }
                 }

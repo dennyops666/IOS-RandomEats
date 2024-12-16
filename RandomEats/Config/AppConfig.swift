@@ -1,6 +1,8 @@
 import Foundation
 
 enum AppConfig {
+    static let version = "1.1.0"
+    
     enum UserDefaults {
         static let themeKey = "app_theme_isDarkMode"
         static let favoritesKey = "app_favorites"

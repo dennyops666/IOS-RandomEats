@@ -19,14 +19,14 @@ class RecipeViewModel: ObservableObject {
         ("Chicken", "鸡肉"),
         ("Dessert", "甜点"),
         ("Lamb", "羊肉"),
-        ("Miscellaneous", "其他"),
         ("Pasta", "意面"),
         ("Pork", "猪肉"),
         ("Seafood", "海鲜"),
         ("Side", "配菜"),
         ("Starter", "开胃菜"),
         ("Vegan", "纯素"),
-        ("Vegetarian", "素食")
+        ("Vegetarian", "素食"),
+        ("Miscellaneous", "其他")
     ]
     
     // 获取所有可用的食物分类
