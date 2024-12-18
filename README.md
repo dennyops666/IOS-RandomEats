@@ -154,3 +154,5 @@ Random Eats 是一款简单易用的 iOS 应用，旨在帮助用户快速生成
 - 实现收藏功能
 - 支持深色/浅色主题切换
 - 基本的中英文支持
+
+github仓库地址： https://github.com/dennyops666/IOS-RandomEats.git
